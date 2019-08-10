@@ -1,0 +1,17 @@
+{
+  "name": "bitmex-bars",
+  "version": "1.0.0",
+  "description": "bitmex OHLC data api",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "boppleton industries",
+  "license": "ISC",
+  "dependencies": {
+    "ccxt": "^1.18.1041",
+    "express": "^4.17.1",
+    "ws": "^7.1.1"
+  }
+}
