@@ -3,7 +3,11 @@ const WebSocket = require('ws')
 const ccxt = require('ccxt')
 const bitmex = new ccxt.bitmex()
 
-// 1.
+// 1. set paths
+// 2. set all symbols
+// 3. setup api
+// 4. get all bars history
+// 5. setup websocket for bar updates
 
 // 1. set paths would be ex. /XBTUSD/m1 or /ETHUSD/testpath2
 let data = [
@@ -11,7 +15,7 @@ let data = [
     [testdata = {}, ['testpath1', 'testpath2']],
 ]
 
-// uses this name for paths, format for CCXT in bottom function
+// 2. uses this name for paths, format for CCXT in bottom function
 let symbols = [
     'XBTUSD', 'ETHUSD',
     // 'XBTM19','XBTU19','ETHM19','ADAM19','BCHM19',
@@ -21,6 +25,7 @@ let symbols = [
 // how much OHLC history to store for each timeframe
 let barCount = 2000
 
+// 3.
 const setupDataAPI = (() => {
 
     // make a path for each symbol+datapath (eg. bars.XBTUSD.m1)
@@ -43,7 +48,7 @@ const setupDataAPI = (() => {
         }))(d[0], d[1]))
 })()
 
-
+// 4.
 const getAllBars = (() => {
 
     const get = async (symbol, bin) => {
@@ -72,6 +77,7 @@ const getAllBars = (() => {
 
 })()
 
+// 5.
 const setupBitmexWebsocket = (async () => {
 
     const socketOpenListener = e => console.log('bitmex ws open')
