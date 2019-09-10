@@ -9,23 +9,36 @@ const bitmex = new ccxt.bitmex()
 // 4. get all bars history
 // 5. setup websocket for bar updates
 
-// 1. set paths would be ex. /XBTUSD/m1 or /ETHUSD/testpath2
-let data = [
+
+// 1. paths:
+//
+//  data[] starts each different content item you want to calculate and serve.
+//  the first item in the array is for the candlesticks, with
+//  `bars = {}` being the data holder, then the strings array is the different paths.
+//
+data = [
     [bars = {}, ['m1', 'm5', 'h1', 'd1']],
     [testdata = {}, ['testpath1', 'testpath2']],
 ]
 
-// 2. uses this name for paths, format for CCXT in bottom function
-let symbols = [
+
+// 2. symbols:
+//
+//   this string determines the path name, although CCXT requires wierd names sometimes.
+//   use getCCXTsymbol() at the bottom to set the names for ccxt data pulls
+//
+symbols = [
     'XBTUSD', 'ETHUSD',
     // 'XBTM19','XBTU19','ETHM19','ADAM19','BCHM19',
     // 'EOSM19','LTCM19','TRXM19','EOSM19','XRPM19'
 ]
 
 // how much OHLC history to store for each timeframe
-let barCount = 2000
+barCount = 2000
 
-// 3.
+
+// 3. express server
+//
 const setupDataAPI = (() => {
 
     // make a path for each symbol+datapath (eg. bars.XBTUSD.m1)
@@ -48,7 +61,9 @@ const setupDataAPI = (() => {
         }))(d[0], d[1]))
 })()
 
-// 4.
+
+// 4. get history with CCXT.  need to optimize time between api calls (get ratelimit from incoming headers)
+//
 const getAllBars = (() => {
 
     const get = async (symbol, bin) => {
@@ -77,7 +92,8 @@ const getAllBars = (() => {
 
 })()
 
-// 5.
+// 5.  websocket for updates
+//
 const setupBitmexWebsocket = (async () => {
 
     const socketOpenListener = e => console.log('bitmex ws open')
@@ -97,22 +113,22 @@ const setupBitmexWebsocket = (async () => {
             tradeMsg(msg.action, msg.data)
         }
     }
-    const tradeMsg = (action, data) => {
+    const tradeMsg = (action, tradeData) => {
 
-        if (!symbols.find(s => s === data[0].symbol)) return
+        if (!symbols.find(s => s === tradeData[0].symbol)) return
 
         let total = 0
-        data.forEach(t => total += t.size)
-        let price = data[data.length - 1].price
+        tradeData.forEach(t => total += t.size)
+        let price = tradeData[tradeData.length - 1].price
 
-        const setBars = data[0][1].forEach(bin => setBar(data[0].symbol, bin))
+        const setBars = data[0][1].forEach(bin => setBar(tradeData[0].symbol, bin))
 
         async function setBar(symbol, bin) {
 
-            let bars = bars[symbol][bin]
+            let bars = data[0][0][symbol][bin]
             let currentBar = bars[bars.length - 1]
             let lastbarTime = currentBar[0]
-            let time = new Date(data[0].timestamp).getTime()
+            let time = new Date(tradeData[0].timestamp).getTime()
 
             if (time < lastbarTime) {
                 //update current bar
@@ -135,7 +151,7 @@ const setupBitmexWebsocket = (async () => {
         }
     }
     socketCloseListener()
-})
+})()
 
 const getCCXTsymbol = (symbol) => {
     //mex pairs
