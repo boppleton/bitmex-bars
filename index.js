@@ -18,8 +18,18 @@ const bitmex = new ccxt.bitmex()
 //
 data = [
     [bars = {}, ['m1', 'm5', 'h1', 'd1']],
-    [testdata = {}, ['testpath1', 'testpath2']],
+    [testPaths = {}, ['random', 'somepath']],
 ]
+
+// the bars paths are updated with every websocket trade.  you can update other paths from there also,
+// or calculate/update them however you want.
+
+// the `random` path would be [localhost:3001 or server url]/XBTUSD/random, for each symbol, this will update it every second.
+setInterval(() => {
+    symbols.forEach((symbol)=>{
+        data[1][0][symbol]['random'] = Math.random().toFixed(5)
+    })
+}, 1000)
 
 
 // 2. symbols:
@@ -28,7 +38,8 @@ data = [
 //   use getCCXTsymbol() at the bottom to set the names for ccxt data pulls
 //
 symbols = [
-    'XBTUSD', 'ETHUSD',
+    'XBTUSD',
+    // 'ETHUSD',
     // 'XBTM19','XBTU19','ETHM19','ADAM19','BCHM19',
     // 'EOSM19','LTCM19','TRXM19','EOSM19','XRPM19'
 ]
@@ -74,7 +85,7 @@ const getAllBars = (() => {
 
         for (let i = 0; i < Math.ceil(barCount / 750); i++) {
             await new Promise(resolve => setTimeout(resolve, 5000))
-            console.log(symbol + bin + 'pull ' + (i+2))
+            console.log(symbol + bin + 'pull ' + (i + 2))
             let bars2 = await bitmex.fetchOHLCV(getCCXTsymbol(symbol), bin[1] + bin[0], null, 750, {
                 reverse: true, partial: true, endTime: new Date(bars1[0][0]).toISOString().split('.')[0] + "Z"
             })
