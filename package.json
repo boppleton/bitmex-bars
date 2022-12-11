@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "ccxt": "^1.18.1041",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "ws": "^7.1.1"
   }
 }
